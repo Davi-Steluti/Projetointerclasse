@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 # from sqlalchemy import select
 
 from banco import tabela_time, tabela_jogador, tabela_partida
+from database import db_session
+
 # from database import Time, Jogador, Partida, db_session
 # from sqlalchemy.exc import SQLAlchemyError
 
@@ -80,6 +82,7 @@ def novo_time():
         nome = request.form.get("nome", "").strip()
         turma = request.form.get("turma", "").strip()
         responsavel = request.form.get("responsavel", "").strip()
+        jogadores_ids = request.form.getlist("jogadores")
 
         #2- Verificar se foi digitado
         if not nome:
@@ -95,10 +98,34 @@ def novo_time():
             return render_template('times.html')
 
         #3- Salvar no banco
-        tabela_time.salvar(nome=nome, turma=turma, responsavel=responsavel)
+        time = tabela_time.salvar(nome=nome, turma=turma, responsavel=responsavel)
+
+        if jogadores_ids:
+            for jogador_id in jogadores_ids:
+                jogador = tabela_jogador.select_um(jogador_id)
+                jogador.time_id = time.id
+                db_session.add(jogador)
+                db_session.commit()
+
 
     times = tabela_time.select_todos()
-    return render_template("times.html", times=times)
+    jogadores = tabela_jogador.select_todos()
+    return render_template("times.html", times=times, jogadores=jogadores)
+
+@app.route("/time/<id_time>")
+def detalhes_time(id_time):
+    time = tabela_time.select_um(int(id_time))
+    jogadores = tabela_jogador.select_por_time(int(id_time)) #fazer uma função que traga todos os jogadores do time
+    partidas = tabela_partida.select_por_time(int(id_time))
+
+    return render_template("time_detalhes.html",
+                           time=time,
+                           jogadores=jogadores,
+                           qtd_jogadores=len(jogadores),
+                           partidas=partidas,
+                           qtd_partidas=len(partidas)
+                           )
+
 
 
 @app.route("/partidas")

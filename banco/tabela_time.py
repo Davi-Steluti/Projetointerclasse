@@ -27,16 +27,21 @@ def salvar(nome, turma, responsavel):
         db_session.add(criar_time)
         db_session.commit()
         flash('Time criado com sucesso', 'success')
-        return render_template('times.html')
+        return criar_time
 
     except SQLAlchemyError as e:
         db_session.rollback()
         print(f'erro ao salvar no banco: {e}')
         flash('Erro', 'error')
-        return render_template('times.html')
 
     except Exception as e:
         db_session.rollback()
         print(f'erro inesperado: {e}')
         flash('Erro inesperado', 'error')
-        return render_template('times.html')
+
+def select_um(id_time):
+    time_sql = select(Time).where(Time.id == id_time)
+    time = db_session.execute(time_sql).scalar_one_or_none()
+    return time
+
+print(select_um(10))

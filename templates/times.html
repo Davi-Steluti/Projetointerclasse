@@ -29,6 +29,15 @@
                     <label for="responsavel">Responsavel</label>
                     <input type="text" id="responsavel" name="responsavel" placeholder="Coloque o responsavel">
                 </div>
+                <div class="campo">
+                    <label>Jogadores</label>
+                    {% for jogador, time in jogadores %}
+                        <div class="linha-campos">
+                            <input type="checkbox" name="jogadores" value="{{ jogador.id }}" id="jogador_{{ jogador.id }}">
+                            <label for="jogador_{{ jogador.id }}">{{ jogador.nome }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
             <div class="acoes-form">
                 <button type="submit" class="botao">Cadastrar</button>
@@ -45,7 +54,7 @@
             <thead>
                 <tr>
                     <th> Id </th>
-                    <th> Nome </th>
+                    <th><a> Nome </a></th>
                     <th> Turma </th>
                     <th> Jogadores </th>
                     <th> Responsável </th>
@@ -55,7 +64,7 @@
             {% for time, jogadores in times %}
                 <tr>
                     <td>{{ time.id }}</td>
-                    <td>{{ time.nome }}</td>
+                    <td><a href="{{ url_for('detalhes_time', id_time=time.id) }}"> {{ time.nome }} </a></td>
                     <td>{{ time.turma }}</td>
                     <td>{{ jogadores }}</td>
                     <td>{{ time.responsavel }}</td>
